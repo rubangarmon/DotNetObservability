@@ -6,7 +6,7 @@ using System;
 
 namespace Common.Logging
 {
-    public static class SeriLogger
+    public static class SeriLogger  
     {
         public static Action<HostBuilderContext, LoggerConfiguration> Configure =>
             (context, configuration) =>
