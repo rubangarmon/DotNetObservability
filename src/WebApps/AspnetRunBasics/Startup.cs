@@ -10,6 +10,9 @@ using Polly;
 using System;
 using System.Net.Http;
 using Serilog;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using HealthChecks.UI.Client;
 
 namespace AspnetRunBasics
 {
@@ -46,6 +49,9 @@ namespace AspnetRunBasics
                 .AddPolicyHandler(GetCircuitBreakerPolicy());
 
             services.AddRazorPages();
+
+            services.AddHealthChecks()
+                .AddUrlGroup(new Uri(Configuration["ApiSettings:GatewayAddress"]), "Ocelot API Gw", HealthStatus.Degraded);
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
@@ -96,6 +102,11 @@ namespace AspnetRunBasics
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapHealthChecks("/hc", new HealthCheckOptions()
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
             });
         }
     }
